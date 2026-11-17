@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu voz en LinkedIn · Tenkai Consulting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   TENKAI · Tu voz en LinkedIn
+   Pieza autogestionada: la persona se lleva un ADN de voz y prompts listos
+   para pegar en ChatGPT, Claude o Gemini. No envía datos a ningún lado.
+   Progreso guardado en localStorage. Todo por toque, sin arrastre.
+   ═══════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --i:#3b35a8;--deep:#2d2894;--mag:#8b3a8f;--coral:#d4522a;
+  --bg:#f0eff5;--ink:#1a1a2e;--sub:#555566;--muted:#888899;
+  --border:#e2e0ea;--cream:#ece9f4;--white:#ffffff;
+  --tint:#8986cb;
+  --grad:linear-gradient(135deg,#3b35a8 0%,#8b3a8f 50%,#d4522a 100%);
+  --f:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--f);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+button{font-family:var(--f)}
+.hidden{display:none!important}
+
+/* ── HEADER (ancho 900, igual que el resto de las piezas) ── */
+.hdr{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border)}
+.hdr-in{max-width:900px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.hdr-left img{width:42px;height:42px;border-radius:9px;display:block}
+.hdr-brand{font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+.hdr-sub{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.prog-wrap{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;color:var(--muted)}
+.prog-bar{width:110px;height:5px;border-radius:3px;background:var(--border);overflow:hidden}
+.prog-fill{height:100%;background:var(--i);border-radius:3px;transition:width .4s ease}
+
+/* ── LAYOUT, HERO (índigo sólido) Y TEXTOS ──────────────── */
+.wrap{max-width:780px;margin:0 auto;padding:0 24px}
+.wrap-wide{max-width:900px}
+.sup{font-size:9.5px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--i)}
+.hero{background:var(--i);color:#fff;padding:46px 0 40px}
+.hero .sup{color:rgba(255,255,255,.5);margin-bottom:12px}
+.hero-bold{display:block;font-size:clamp(28px,5.2vw,38px);font-weight:800;letter-spacing:-.5px;color:#fff;line-height:1.1}
+.hero-slim{padding:26px 0 24px}
+.hero-slim .sup{margin-bottom:8px}
+.hero-slim .hero-bold{font-size:clamp(24px,4.4vw,30px)}
+.page{display:none}.page.on{display:block}
+.sec{padding:32px 0 52px}
+.sec-title{font-size:24px;font-weight:800;letter-spacing:-.4px;line-height:1.2;color:var(--ink);margin:2px 0 0}
+.sec-desc{font-size:15px;color:var(--sub);line-height:1.75;max-width:640px;margin:14px 0 22px}
+.sec-desc strong,.intro-p strong{color:var(--ink);font-weight:700}
+.intro-p{font-size:15px;line-height:1.8;color:var(--sub);margin-bottom:16px;max-width:620px}
+.chips-info{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px}
+.info-pill{background:#fff;border:1px solid var(--border);border-radius:24px;padding:8px 16px;font-size:12.5px;font-weight:600;color:var(--sub)}
+.info-pill strong{color:var(--i);font-weight:800}
+.lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin:34px 0 14px;padding-bottom:11px;border-bottom:1px solid var(--border)}
+
+/* ── BOTONES Y CAMPOS ──────────────────────────────────── */
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;background:var(--i);color:#fff;border:none;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn:hover{background:var(--deep);transform:translateY(-1px)}
+.btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{color:var(--ink);border-color:var(--ink)}
+.btn-ghost:disabled{opacity:.45;cursor:not-allowed}
+.btn-outline{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#fff;color:var(--i);border:2px solid var(--i);border-radius:24px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-outline:hover{background:var(--i);color:#fff}
+.btn-outline.done{background:var(--i);color:#fff}
+.err{display:none;margin-top:16px;padding:11px 16px;border-left:4px solid var(--coral);background:#fff;border-radius:0 10px 10px 0;font-size:13.5px;color:var(--ink)}
+.err.show{display:block}
+.txt-in{width:100%;max-width:420px;padding:13px 17px;display:block;margin-bottom:6px;font-family:var(--f);font-size:17px;font-weight:600;color:var(--ink);background:#fff;border:1.5px solid var(--border);border-radius:12px;outline:none;transition:border-color .2s}
+.txt-in:focus{border-color:var(--i)}
+.txt-in::placeholder{color:#b6b3c4;font-weight:400}
+.ta{width:100%;min-height:92px;padding:13px 16px;font-family:var(--f);font-size:15px;font-weight:500;line-height:1.6;color:var(--ink);background:#fff;border:1.5px solid var(--border);border-radius:12px;outline:none;resize:vertical;transition:border-color .2s}
+.ta:focus{border-color:var(--i)}
+.ta::placeholder{color:#b6b3c4;font-weight:400}
+.field{margin-bottom:22px}
+.field-q{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.field-h{font-size:12.5px;color:var(--muted);margin-bottom:9px;line-height:1.55}
+
+/* ── INTRO ─────────────────────────────────────────────── */
+.get-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 26px}
+.get{background:#fff;border:1px solid var(--border);border-top:4px solid var(--gc);border-radius:14px;padding:14px 16px}
+.get-t{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.get-b{font-size:12.5px;color:var(--muted);line-height:1.55}
+.crit{display:flex;flex-direction:column;gap:10px;margin:0 0 28px;max-width:640px}
+.crit-i{display:flex;gap:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 16px}
+.crit-n{font-size:12px;font-weight:800;color:var(--i);letter-spacing:.1em;padding-top:2px}
+.crit-t{font-size:14px;font-weight:800;color:var(--ink)}
+.crit-q{font-size:13px;color:var(--sub);line-height:1.6;margin-top:2px}
+.seg{display:flex;gap:6px;background:var(--cream);padding:5px;border-radius:24px;max-width:420px;margin-bottom:6px}
+.seg button{flex:1;padding:9px 12px;border:none;background:transparent;border-radius:20px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s}
+.seg button.on{background:var(--i);color:#fff}
+.help{font-size:12px;color:var(--muted);margin-bottom:22px;max-width:520px;line-height:1.55}
+
+/* ── PASO 1: OBJETIVO ──────────────────────────────────── */
+.goals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.goal{display:flex;flex-direction:column;gap:2px;text-align:left;background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .15s}
+.goal:hover{border-color:var(--i)}
+.goal.on{border-color:var(--i);background:#f7f6fd;box-shadow:inset 4px 0 0 var(--i)}
+.goal-t{font-size:14.5px;font-weight:800;color:var(--ink)}
+.goal-b{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+/* ── PASO 2: HISTORIA ──────────────────────────────────── */
+.story{display:flex;flex-direction:column;gap:14px}
+.sc{background:#fff;border:1px solid var(--border);border-left:5px solid var(--sc);border-radius:0 14px 14px 0;padding:18px 20px}
+.sc-h{display:flex;gap:12px;align-items:center;margin-bottom:4px}
+.sc-n{width:28px;height:28px;border-radius:50%;background:var(--sc);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-t{font-size:15px;font-weight:800;color:var(--ink)}
+.sc-q{font-size:13.5px;color:var(--sub);line-height:1.6;margin:2px 0 10px 40px}
+.sc .ta{min-height:80px}
+.sc-tip{font-size:12px;color:var(--muted);line-height:1.55;margin-top:8px}
+
+/* ── PASO 3: VOZ ───────────────────────────────────────── */
+.vcard{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px 24px}
+.vbar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:18px}
+.vbar i{display:block;height:100%;background:var(--i);border-radius:3px;transition:width .3s}
+.vqn{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.vq{font-size:19px;font-weight:800;letter-spacing:-.2px;line-height:1.35;color:var(--ink);margin-bottom:16px}
+.vopts{display:flex;flex-direction:column;gap:9px}
+.vopt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-size:14.5px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .15s}
+.vopt:hover{border-color:var(--i)}
+.vopt.sel{border-color:var(--i);background:#f7f6fd}
+.vdot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0}
+.vopt.sel .vdot{border-color:var(--i);background:var(--i);box-shadow:inset 0 0 0 3px #fff}
+.vnav{display:flex;justify-content:space-between;margin-top:16px}
+.vres{border-top:6px solid var(--vc);border-radius:16px}
+.vres-eye{font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.vres-t{font-size:26px;font-weight:800;letter-spacing:-.4px;color:var(--ink);margin-bottom:8px}
+.vres-d{font-size:14.5px;line-height:1.75;color:var(--sub);margin-bottom:18px}
+.rules{display:flex;flex-direction:column;gap:9px;margin-bottom:6px}
+.rule{display:flex;gap:12px;align-items:flex-start}
+.rule-n{width:24px;height:24px;border-radius:50%;background:var(--vc);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rule-t{font-size:14px;line-height:1.55;color:var(--ink);font-weight:600;padding-top:2px}
+.vagain{margin-top:16px;background:none;border:none;font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:underline;cursor:pointer}
+.vagain:hover{color:var(--i)}
+.sample{margin-top:22px;background:#fff;border:1px solid var(--border);border-left:5px solid var(--coral);border-radius:0 14px 14px 0;padding:18px 20px}
+.sample .field-q{margin-bottom:3px}
+.sample .ta{min-height:130px}
+.cnt{font-size:11.5px;color:var(--muted);text-align:right;margin-top:5px}
+
+/* ── PASO 4: KIT ───────────────────────────────────────── */
+.adn{background:var(--ink);border-radius:16px;overflow:hidden}
+.adn-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.adn-name{font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.5)}
+.adn-pre{padding:18px 20px;max-height:320px;overflow:auto;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.7;color:rgba(255,255,255,.86);white-space:pre-wrap;overflow-wrap:anywhere}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.kcard{background:#fff;border:1px solid var(--border);border-top:5px solid var(--kc);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+.kcard-t{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.kcard-d{font-size:13.5px;color:var(--sub);line-height:1.65;margin-bottom:12px}
+.kcard .ta{min-height:170px;font-size:13px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;line-height:1.65;background:var(--bg)}
+.kcard .acts{margin-top:12px;align-items:center}
+.check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--i)}
+.types{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 18px}
+.type{padding:9px 16px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s}
+.type:hover{border-color:var(--i)}
+.type.on{background:var(--i);border-color:var(--i);color:#fff}
+.type-d{font-size:13px;color:var(--muted);margin:-8px 0 16px}
+.briefs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.brief{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.brief-t{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--i);margin-bottom:8px}
+.brief-r{font-size:12.5px;line-height:1.55;color:var(--sub);margin-bottom:6px}
+.brief-r b{color:var(--ink)}
+.steps3{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.st3{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink);line-height:1.55}
+.st3 i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--i);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cl{display:flex;flex-direction:column;gap:8px}
+.cl-i{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.55;color:var(--sub)}
+.cl-i i{width:16px;height:16px;border:2px solid var(--vc);border-radius:5px;flex-shrink:0;margin-top:2px}
+
+/* ── REINICIO ──────────────────────────────────────────── */
+.restart{display:flex;flex-direction:column;align-items:center;gap:14px;margin:0 auto;padding:22px 24px 40px;max-width:780px}
+.restart-confirm{max-width:480px;text-align:center;background:#fff;border:1.5px solid var(--coral);border-radius:14px;padding:18px 22px}
+.restart-confirm p{font-size:13.5px;line-height:1.65;color:var(--sub);margin-bottom:14px}
+.restart-confirm strong{color:var(--ink)}
+.restart-confirm .racts{display:flex;gap:11px;flex-wrap:wrap;justify-content:center}
+
+/* ── FOOTER (placa degradé, igual que las demás piezas) ─ */
+.tk-footer{background:var(--grad);padding:38px 24px 30px;text-align:center}
+.tk-footer-in{max-width:700px;margin:0 auto}
+.tk-footer img{height:44px;width:auto;display:block;margin:0 auto 10px}
+.tk-tag{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:18px}
+.tk-links{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px}
+.tk-links a{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.78);text-decoration:none;white-space:nowrap}
+.tk-links a:hover{color:#fff}
+.tk-copy{font-size:9.5px;letter-spacing:.14em;color:rgba(255,255,255,.4);margin-top:18px}
+
+@keyframes fUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fup{animation:fUp .3s ease both}
+
+@media(max-width:700px){.briefs,.get-grid{grid-template-columns:1fr}.goals{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .hdr-in{padding:10px 16px}.wrap{padding:0 16px}
+  .prog-bar{width:60px}
+  .vcard{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-left">
+      <img src="data:image/jpeg;base64,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" alt="Tenkai" width="42" height="42" style="width:42px;height:42px;border-radius:9px;">
+      <div><div class="hdr-brand">Tenkai</div><div class="hdr-sub">Consulting</div></div>
+    </div>
+    <div class="prog-wrap"><span id="progTxt">LinkedIn</span><div class="prog-bar hidden" id="progBar"><div class="prog-fill" id="progFill" style="width:0%"></div></div></div>
+  </div>
+</header>
+
+<main>
+
+<!-- ═════════ INTRO ═════════ -->
+<section id="pgIntro" class="page on">
+  <div class="hero"><div class="wrap">
+    <p class="sup">Marca profesional · Tenkai Consulting</p>
+    <span class="hero-bold">Tu voz en LinkedIn</span>
+  </div></div>
+  <div class="wrap"><div class="sec">
+    <p class="intro-p">Una IA puede escribir por vos, pero si no sabe cómo pensás ni cómo hablás, el resultado suena a cualquiera. Esta herramienta junta lo que la IA necesita saber de vos y te lo deja listo para usar.</p>
+    <p class="sup" style="margin:22px 0 10px">Al final te llevás</p>
+    <div class="get-grid" id="getGrid"></div>
+    <p class="sup" style="margin:0 0 10px">Tres criterios que guían el ejercicio</p>
+    <div class="crit" id="crit"></div>
+    <div class="chips-info">
+      <span class="info-pill"><strong>4</strong> pasos</span>
+      <span class="info-pill"><strong>20 a 30</strong> minutos</span>
+      <span class="info-pill">Tu avance <strong>se guarda</strong> en este dispositivo</span>
+    </div>
+    <label class="lbl" for="nameInput">Tu nombre</label>
+    <input class="txt-in" type="text" id="nameInput" placeholder="¿Cómo te llamás?" autocomplete="off" maxlength="60" style="margin-bottom:22px">
+    <label class="lbl">Cómo querés que la IA escriba sobre vos</label>
+    <div class="seg" id="genderSeg">
+      <button type="button" data-action="gender" data-g="F">Femenina</button>
+      <button type="button" data-action="gender" data-g="M">Masculina</button>
+      <button type="button" data-action="gender" data-g="N">Neutra</button>
+    </div>
+    <p class="help">Define la concordancia de género en lo que genere (por ejemplo, “entusiasmada”, “entusiasmado” o una forma sin género).</p>
+    <div class="err" id="errIntro" role="alert"></div>
+    <div class="btn-row"><span></span>
+      <button class="btn" data-action="start" type="button">Comenzar <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+  </div></div>
+</section>
+
+<!-- ═════════ PASO 1 · BASE ═════════ -->
+<section id="pgBase" class="page">
+  <div class="hero hero-slim"><div class="wrap">
+    <p class="sup">Paso 1 de 4 · Tu voz en LinkedIn</p>
+    <span class="hero-bold">Tu identidad profesional</span>
+  </div></div>
+  <div class="wrap"><div class="sec fup">
+    <h2 class="sec-title">¿Para qué usás LinkedIn hoy?</h2>
+    <p class="sec-desc">El mismo perfil se escribe distinto según lo que busques. Elegí lo que más se acerque a este momento.</p>
+    <div class="goals" id="goals"></div>
+    <h2 class="sec-title" style="margin-bottom:6px">Lo que te hace distinta o distinto</h2>
+    <p class="sec-desc" style="margin-top:8px">No es tu cargo ni tu empresa: es lo que sabés hacer, el problema que resolvés y la mirada que traés. Escribí con tus palabras, sin pulir.</p>
+    <div id="baseFields"></div>
+    <div class="err" id="errBase" role="alert"></div>
+    <div class="btn-row"><button class="btn-ghost" type="button" data-action="go" data-v="intro">← Atrás</button><button class="btn" type="button" data-action="base-next">Continuar <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div>
+  </div></div>
+</section>
+
+<!-- ═════════ PASO 2 · HISTORIA ═════════ -->
+<section id="pgStory" class="page">
+  <div class="hero hero-slim"><div class="wrap">
+    <p class="sup">Paso 2 de 4 · Tu voz en LinkedIn</p>
+    <span class="hero-bold">Tu historia</span>
+  </div></div>
+  <div class="wrap"><div class="sec fup">
+    <h2 class="sec-title">De dónde venís y hacia dónde vas</h2>
+    <p class="sec-desc">No es un resumen de CV: es el hilo que conecta lo que hiciste con lo que buscás, <strong>sin sonar a discurso de entrevista</strong>. Con respuestas breves alcanza; completá al menos dos.</p>
+    <div class="story" id="storyBox"></div>
+    <div class="err" id="errStory" role="alert"></div>
+    <div class="btn-row"><button class="btn-ghost" type="button" data-action="go" data-v="base">← Atrás</button><button class="btn" type="button" data-action="story-next">Continuar <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div>
+  </div></div>
+</section>
+
+<!-- ═════════ PASO 3 · VOZ ═════════ -->
+<section id="pgVoice" class="page">
+  <div class="hero hero-slim"><div class="wrap">
+    <p class="sup">Paso 3 de 4 · Tu voz en LinkedIn</p>
+    <span class="hero-bold">Tu voz natural</span>
+  </div></div>
+  <div class="wrap"><div class="sec fup">
+    <h2 class="sec-title">Cómo hablás cuando escribís</h2>
+    <p class="sec-desc">En un LinkedIn lleno de texto generado por IA, lo que diferencia es la voz. Respondé cinco preguntas rápidas y, si podés, <strong>sumá un texto tuyo</strong>: es lo que mejor le enseña a la IA cómo escribís.</p>
+    <div id="voiceBox"></div>
+    <div class="sample">
+      <p class="field-q">Una muestra de tu escritura <span style="font-weight:500;color:var(--muted)">(opcional, muy recomendable)</span></p>
+      <p class="field-h">Pegá uno o dos textos que hayas escrito vos: un mail largo, un post anterior, un mensaje a un equipo. Cuanto más natural, mejor.</p>
+      <textarea class="ta" id="sampleIn" maxlength="3000" placeholder="Pegá acá tu texto…"></textarea>
+      <div class="cnt" id="sampleCnt">0 / 3000</div>
+    </div>
+    <div class="err" id="errVoice" role="alert"></div>
+    <div class="btn-row"><button class="btn-ghost" type="button" data-action="go" data-v="story">← Atrás</button><button class="btn" type="button" data-action="voice-next">Ver mi kit <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div>
+  </div></div>
+</section>
+
+<!-- ═════════ PASO 4 · KIT ═════════ -->
+<section id="pgKit" class="page">
+  <div class="hero hero-slim"><div class="wrap wrap-wide">
+    <p class="sup">Paso 4 de 4 · Tu voz en LinkedIn</p>
+    <span class="hero-bold" id="kitTitle">Tu kit para escribir con tu voz</span>
+  </div></div>
+  <div class="wrap wrap-wide"><div class="sec fup">
+    <div class="steps3">
+      <div class="st3"><i>1</i><span>Copiá un prompt de abajo (ya incluye tu ADN de voz).</span></div>
+      <div class="st3"><i>2</i><span>Pegalo en ChatGPT, Claude o Gemini.</span></div>
+      <div class="st3"><i>3</i><span>Revisá el resultado con tu checklist antes de publicar: es un borrador, no el texto final.</span></div>
+    </div>
+
+    <p class="sec-lbl">Tu ADN de voz</p>
+    <div class="adn"><div class="adn-bar"><span class="adn-name">adn-de-voz.txt</span></div><pre class="adn-pre" id="adnPre"></pre></div>
+    <div class="acts"><button class="btn-outline" type="button" data-action="copy" data-what="adn" id="cpAdn">Copiar mi ADN</button><button class="btn-ghost" type="button" data-action="download">Descargar como .txt</button></div>
+
+    <p class="sec-lbl">Prompts listos para pegar</p>
+    <div class="kcard" style="--kc:#3b35a8"><p class="kcard-t">Titular de tu perfil</p><p class="kcard-d">Tres opciones de titular que digan qué hacés y para quién, con palabras que alguien usaría para buscarte.</p><textarea class="ta" id="pTitular" readonly></textarea><div class="acts"><button class="btn-outline" type="button" data-action="copy" data-what="titular" id="cpTitular">Copiar con mi ADN</button></div></div>
+    <div class="kcard" style="--kc:#8986cb"><p class="kcard-t">Sección “Acerca de”</p><p class="kcard-d">Un texto en primera persona que cuenta de dónde venís y hacia dónde vas, sin clichés.</p><textarea class="ta" id="pAcerca" readonly></textarea><div class="acts"><button class="btn-outline" type="button" data-action="copy" data-what="acerca" id="cpAcerca">Copiar con mi ADN</button></div></div>
+
+    <div class="kcard" style="--kc:#d4522a">
+      <p class="kcard-t">Tu primer post</p>
+      <p class="kcard-d">Elegí un tipo de contenido y contá lo que viviste. Esto ordena la materia prima para que la IA no tenga que inventar nada.</p>
+      <div class="types" id="types"></div>
+      <p class="type-d" id="typeDesc"></p>
+      <div id="genFields"></div>
+      <div class="acts"><button class="btn" type="button" data-action="gen">Armar la estructura</button><button class="btn-ghost" type="button" data-action="gen-clear">Limpiar</button></div>
+      <div class="err" id="errGen" role="alert"></div>
+      <div id="genOut" class="hidden" style="margin-top:18px">
+        <label class="lbl">Tu estructura lista para la IA</label>
+        <textarea class="ta" id="pPost" style="min-height:240px;font-size:13px;font-family:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;background:var(--bg)"></textarea>
+        <div class="acts"><button class="btn-outline" type="button" data-action="copy" data-what="post" id="cpPost">Copiar estructura</button><label class="check"><input type="checkbox" id="inclAdn" checked> Incluir mi ADN de voz</label></div>
+        <div class="briefs" id="briefs"></div>
+      </div>
+    </div>
+
+    <p class="sec-lbl">Checklist antes de publicar</p>
+    <div class="vcard" id="checkCard" style="border-top:6px solid var(--vc)"></div>
+
+    <div class="btn-row"><button class="btn-ghost" type="button" data-action="go" data-v="voice">← Volver a editar</button><span></span></div>
+  </div></div>
+</section>
+
+</main>
+
+<div class="restart">
+  <button class="btn-ghost" id="restartBtn" data-action="restart" type="button">Volver a iniciar</button>
+  <div class="restart-confirm hidden" id="restartConfirm">
+    <p><strong>Se va a borrar todo lo que cargaste</strong> y vas a empezar desde cero.</p>
+    <div class="racts"><button class="btn" data-action="restart-yes" type="button">Sí, empezar de nuevo</button><button class="btn-ghost" data-action="restart-no" type="button">Cancelar</button></div>
+  </div>
+</div>
+
+<footer class="tk-footer" id="ftr"><div class="tk-footer-in">
+  <a href="https://www.tenkai.com.ar" target="_blank" rel="noopener"><img src="data:image/png;base64,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" alt="Tenkai Consulting"></a>
+  <div class="tk-tag">Diseño de Carrera Profesional</div>
+  <nav class="tk-links">
+    <a href="https://www.tenkai.com.ar" target="_blank" rel="noopener">tenkai.com.ar</a>
+    <a href="mailto:esteban@tenkai.com.ar">esteban@tenkai.com.ar</a>
+    <a href="https://wa.me/5491170657746" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="https://www.linkedin.com/in/toledoesteban" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.instagram.com/esteban.tenkai" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.tiktok.com/@esteban.tenkai" target="_blank" rel="noopener">TikTok</a>
+    <a href="https://www.facebook.com/tenkai.esteban" target="_blank" rel="noopener">Facebook</a>
+  </nav>
+  <div class="tk-copy">© 2026 TENKAI CONSULTING</div>
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+
+var LS='tenkai_linkedin_v3';
+var C={indigo:'#3b35a8',coral:'#d4522a',tint:'#8986cb',ink:'#1a1a2e'};
+
+/* ── Contenido ───────────────────────────────────────────── */
+var GETS=[
+  {t:'Tu ADN de voz',b:'Un bloque de texto con tu identidad, tu historia y tu estilo, para que la IA te conozca.',c:C.indigo},
+  {t:'Dos prompts de perfil',b:'Para generar tu titular y tu sección “Acerca de” con tu voz.',c:C.tint},
+  {t:'Un primer post',b:'Una estructura ordenada con lo que viviste y una guía para publicarlo.',c:C.coral}
+];
+var CRIT=[
+  {n:'01',t:'LinkedIn no es tu CV online',q:'Si alguien lee tu perfil hoy, ¿queda claro cómo pensás o solo dónde trabajaste?'},
+  {n:'02',t:'Publicar no es presumir',q:'¿Esto que voy a publicar le sirve a alguien o solo me hace quedar bien a mí?'},
+  {n:'03',t:'Tu voz es lo que la IA no puede copiar',q:'Cada vez que publicás algo que solo vos podrías haber escrito, hacés lo que ninguna IA puede hacer.'}
+];
+var GOALS=[
+  {id:'buscar',t:'Busco trabajo',b:'Quiero que me encuentren y me elijan.',txt:'Estoy buscando trabajo y quiero que reclutadores y equipos me encuentren y me elijan'},
+  {id:'cambiar',t:'Quiero cambiar',b:'De rol, de industria o de rumbo.',txt:'Quiero cambiar de rol o de industria y que mi perfil cuente hacia dónde voy'},
+  {id:'crecer',t:'Quiero crecer donde estoy',b:'Ganar visibilidad en mi organización y mi sector.',txt:'Quiero crecer donde estoy y ganar visibilidad en mi organización y mi sector'},
+  {id:'referente',t:'Quiero ser referente',b:'Atraer clientes, colaboraciones o charlas.',txt:'Quiero posicionarme como referente y atraer clientes, colaboraciones u oportunidades de visibilidad'}
+];
+var BASE=[
+  {id:'hab',q:'¿Qué es lo que mejor sabés hacer?',h:'No el título del cargo: la habilidad real que más usás y mejor te sale.',ph:'Ej.: Ordenar información compleja y convertirla en decisiones para un equipo.'},
+  {id:'prob',q:'¿Qué problema resolvés mejor que la mayoría?',h:'Pensá en los pedidos que te hacen y en los fuegos que te piden apagar.',ph:'Ej.: Destrabar proyectos que llevan meses frenados por falta de coordinación.'},
+  {id:'persp',q:'¿Qué ves en tu industria que todavía no se nombra?',h:'Una tendencia, un cambio, algo que te parece obvio pero casi nadie dice. (Opcional)',ph:'Ej.: Los equipos de operaciones absorbieron funciones que antes eran de sistemas.'},
+  {id:'ctx',q:'¿En qué contexto trabajás o querés trabajar?',h:'Industria, tipo de organización, tamaño, cultura. (Opcional)',ph:'Ej.: Empresas medianas de servicios, con equipos remotos y mucha autonomía.'}
+];
+var STORY=[
+  {id:'inicio',t:'Tu punto de partida',q:'¿Desde dónde arrancaste? Industria, rol, contexto inicial.',tip:'Empezá desde donde tu carrera tomó forma real: no hace falta ir a los orígenes.',c:C.indigo},
+  {id:'giro',t:'El giro que cambió tu rumbo',q:'¿Hubo un momento, un proyecto o una decisión que te trajo hasta acá?',tip:'Puede ser un proyecto que te desafió, alguien que te marcó, un error que te enseñó o una oportunidad tomada sin estar listo.',c:C.coral},
+  {id:'construido',t:'Lo que construiste',q:'¿Qué lograste, aprendiste o desarrollaste que hoy define tu forma de trabajar?',tip:'No es una lista de empresas: es el hilo que conecta lo que hiciste con lo que sabés hacer.',c:C.tint},
+  {id:'hoy',t:'Tu situación hoy',q:'¿Dónde estás ahora? ¿Qué te mueve y qué tiene sentido para vos?',tip:'Si buscás un cambio, no hace falta decirlo: alcanza con mostrar hacia dónde mirás.',c:C.ink}
+];
+var VOZ_QS=[
+  {q:'Cuando tenés algo para decir, ¿cómo arrancás naturalmente?',opts:[
+    {t:'Con una situación concreta que viví o vi',k:'N'},
+    {t:'Con una pregunta que me está dando vueltas',k:'A'},
+    {t:'Con un dato o una tendencia que me llamó la atención',k:'R'}]},
+  {q:'¿Qué longitud de post se siente más natural para vos?',opts:[
+    {t:'Corto y directo: tres a cinco párrafos, nada más',k:'N'},
+    {t:'Mediano: desarrollar bien la idea sin extenderme',k:'A'},
+    {t:'La que haga falta: prefiero que quede completo',k:'R'}]},
+  {q:'¿Cómo definirías tu estilo de escritura?',opts:[
+    {t:'Conversacional, como si le explicara algo a alguien',k:'N'},
+    {t:'Reflexivo: desarrollo la idea con profundidad',k:'A'},
+    {t:'Informativo: busco que quede claro y fundamentado',k:'R'}]},
+  {q:'¿Qué tipo de contenido te cuesta más escribir?',opts:[
+    {t:'El de tendencias: prefiero lo concreto a lo teórico',k:'N'},
+    {t:'El muy corto: siento que pierdo matices importantes',k:'A'},
+    {t:'El muy personal: me cuesta exponer lo íntimo',k:'R'}]},
+  {q:'Cuando terminás un borrador, ¿qué hacés?',opts:[
+    {t:'Lo reviso para sacarle palabras, siempre me queda largo',k:'N'},
+    {t:'Lo dejo reposar y lo releo al día siguiente',k:'A'},
+    {t:'Verifico que los datos y las referencias estén bien',k:'R'}]}
+];
+var PERFILES={
+  N:{nombre:'Voz narrativa concreta',color:C.coral,
+   desc:'Tu fortaleza es la historia real. Convertís experiencias propias en contenido que resuena porque quien lee se reconoce. Tu mayor riesgo: quedarte en la anécdota sin decir qué aprendiste.',
+   reglas:['Arrancá siempre con una situación específica, no con una conclusión','Limitá cada post a una sola idea: si tenés dos, son dos posts','Cerrá con algo que quien lee pueda hacer o pensar'],
+   check:['¿Empieza con una generalización o con algo concreto?','¿Hay alguna frase que podría haber escrito una IA sin saber nada de mí?','¿Usé más de tres emojis? Sacar los que no suman','¿El cierre invita a algo o solo constata?']},
+  A:{nombre:'Voz reflexiva',color:C.indigo,
+   desc:'Tu fortaleza es la profundidad. Conectás ideas de formas que otras personas no ven y eso genera conversaciones reales. Tu mayor riesgo: escribir tan largo que no se llegue al punto.',
+   reglas:['Poné la conclusión en el primer párrafo y desarrollala después','Si el post tiene más de seis párrafos, revisá si se puede dividir','Una pregunta al cierre vale más que tres afirmaciones'],
+   check:['¿La idea principal queda clara en las primeras tres líneas?','¿Hay algún párrafo que podría borrar sin perder nada?','¿Usé palabras como “paradigma” o “disruptivo”? Cambiarlas','¿Hay al menos un ejemplo concreto en el post?']},
+  R:{nombre:'Voz informada con criterio',color:C.tint,
+   desc:'Tu fortaleza es el criterio. Analizás lo que pasa en tu sector y lo ponés en perspectiva. Tu mayor riesgo: sonar a artículo de revista sin punto de vista propio.',
+   reglas:['Cada vez que citás un dato o una tendencia, decí qué pensás vos al respecto','Usá la primera persona: “yo creo”, “lo que veo es”, “en mi experiencia”','Evitá listas de puntos sin desarrollo: elegí los dos o tres que más importan'],
+   check:['¿Tiene al menos una opinión mía que no sea obvia?','¿Cito fuentes o digo “según estudios”? Si cito, lo pongo; si no, lo saco','¿El tono es de artículo o de conversación? Apuntar a conversación','¿Hay algo en el post que solo yo podría haber escrito?']}
+};
+var TIPOS=[
+  {id:'aprendizaje',t:'Aprendizaje',d:'Algo que descubrí esta semana',b:0,extra:'',campos:[
+    {id:'ctx',l:'¿En qué contexto pasó?',ph:'Ej.: Estaba coordinando el cierre de un proyecto con un equipo que no conocía todavía…',tag:'CONTEXTO',req:1},
+    {id:'click',l:'¿Qué fue lo que hizo clic?',ph:'Ej.: Me di cuenta de que el problema no era el proceso, sino que nadie tenía claro quién tomaba la decisión final.',tag:'EL MOMENTO CLAVE',req:1},
+    {id:'cambio',l:'¿Qué cambia para vos a partir de esto?',ph:'Ej.: Ahora, antes de arrancar un proyecto, pregunto quién tiene la última palabra.',tag:'QUÉ CAMBIA A PARTIR DE ESTO'}]},
+  {id:'decision',t:'Decisión',d:'Por qué hice lo que hice',b:1,extra:'',campos:[
+    {id:'sit',l:'¿Cuál era la situación?',ph:'Ej.: Tenía que elegir entre dos caminos con riesgos muy distintos y sin tiempo para un análisis largo.',tag:'LA SITUACIÓN',req:1},
+    {id:'ops',l:'¿Qué opciones evaluaste?',ph:'Ej.: A: más impacto a corto plazo, más riesgo. B: más tiempo, más certeza.',tag:'LAS OPCIONES QUE EVALUÉ'},
+    {id:'crit',l:'¿Qué pesó más para decidir?',ph:'Ej.: Lo que más importó fue con quién iba a trabajar, no qué tan grande era el proyecto.',tag:'LO QUE PESÓ MÁS PARA DECIDIR'},
+    {id:'res',l:'¿Qué pasó? (aunque sea parcial)',ph:'Ej.: Todavía en proceso, pero la dinámica del equipo validó la decisión.',tag:'EL RESULTADO'}]},
+  {id:'industria',t:'Mi sector',d:'Lo que observo y pienso',b:2,extra:'Que mi opinión quede clara en cada párrafo.',campos:[
+    {id:'obs',l:'¿Qué estás observando en tu sector?',ph:'Ej.: Cada vez más equipos de operaciones absorben funciones que antes eran de sistemas.',tag:'LO QUE ESTOY OBSERVANDO EN MI SECTOR',req:1},
+    {id:'lec',l:'¿Qué pensás vos al respecto?',ph:'Ej.: Creo que el perfil cambió: hoy hay que entender el negocio para entender la tecnología.',tag:'MI LECTURA AL RESPECTO'},
+    {id:'imp',l:'¿Qué implica esto en la práctica?',ph:'Ej.: Si estás en operaciones, leer dashboards ya no es opcional.',tag:'QUÉ IMPLICA ESTO EN LA PRÁCTICA'}]},
+  {id:'error',t:'Error honesto',d:'Lo que salió mal y qué cambié',b:3,extra:'Que no termine con una lección de vida ni con un cierre inspiracional: que termine con lo que concretamente cambié.',campos:[
+    {id:'err',l:'¿Qué salió mal?',ph:'Ej.: Asumí que el equipo entendía el objetivo sin verificarlo. Tres semanas después, cada quien había trabajado en una dirección distinta.',tag:'LO QUE SALIÓ MAL',req:1},
+    {id:'imt',l:'¿Qué impacto tuvo?',ph:'Ej.: Perdimos dos semanas y tuve que dar explicaciones que no sabía cómo justificar.',tag:'EL IMPACTO QUE TUVO'},
+    {id:'adj',l:'¿Qué ajustaste concretamente?',ph:'Ej.: Ahora tengo una checklist de arranque donde pregunto qué espera cada área.',tag:'LO QUE AJUSTÉ CONCRETAMENTE'}]},
+  {id:'pregunta',t:'Duda genuina',d:'Lo que todavía no tengo claro',b:4,extra:'La pregunta queda como único cierre, sin agregar nada después.',campos:[
+    {id:'ctxp',l:'¿En qué contexto surge la pregunta?',ph:'Ej.: Estoy liderando un equipo por primera vez y tomo decisiones sin suficiente información.',tag:'CONTEXTO DE LA PREGUNTA'},
+    {id:'preg',l:'¿Cuál es la pregunta concreta?',ph:'Ej.: ¿Cuándo tiene sentido pedir más contexto antes de decidir y cuándo conviene actuar con lo que hay?',tag:'LA PREGUNTA CONCRETA',req:1}]},
+  {id:'logro',t:'Logro contextual',d:'Un resultado sin sonar a CV',b:2,extra:'Que el foco esté en el proceso y el aprendizaje, no en el logro en sí. Que no suene a autobombo.',campos:[
+    {id:'logro',l:'¿Qué lograste?',ph:'Ej.: Redujimos el tiempo de onboarding de clientes de tres semanas a ocho días.',tag:'EL LOGRO',req:1},
+    {id:'como',l:'¿Cómo lo hicieron?',ph:'Ej.: Mapeamos el proceso desde el punto de vista del cliente y no del nuestro.',tag:'CÓMO LO HICIMOS'},
+    {id:'aprl',l:'¿Qué aprendiste en el proceso?',ph:'Ej.: Lo más difícil fue convencer al equipo de que simplificar era la dirección correcta.',tag:'LO QUE APRENDÍ EN EL PROCESO'}]}
+];
+var BRIEFS=[
+  {fmt:{tipo:'Historia corta',long:'3 a 4 párrafos',tip:'Arrancá con el contexto, nombrá el momento en que algo hizo clic y cerrá con qué cambia para vos. Sin moraleja obvia al final.'},
+   vis:{tipo:'Foto de tu entorno de trabajo o de un proceso',comp:'Naturalidad por sobre producción; luz natural siempre que sea posible.',tools:'Tu celular, Snapseed, Canva'},
+   pub:{fn:'Post de texto con imagen',etq:'Etiquetá a quien fue parte del aprendizaje solo si es genuino',momento:'Martes a jueves, mañana o mediodía',cierre:'Pregunta abierta: ¿les pasó algo parecido?'}},
+  {fmt:{tipo:'Reflexión personal',long:'4 a 5 párrafos',tip:'Describí la situación, las opciones, lo que pesó y el resultado, aunque sea parcial. La honestidad vale más que el resultado perfecto.'},
+   vis:{tipo:'Diagrama simple o esquema propio',comp:'Puede ser a mano y fotografiado: que se entienda en cinco segundos, letra grande, máximo tres elementos.',tools:'Canva, papel y marcador, Miro'},
+   pub:{fn:'Post con imagen, o carrusel si querés desarrollar más',etq:'Solo si la decisión involucró a alguien que vale mencionar',momento:'Miércoles o jueves a la mañana',cierre:'Pregunta específica: ¿cómo lo hubieran resuelto?'}},
+  {fmt:{tipo:'Análisis breve con punto de vista',long:'3 párrafos: contexto, tu lectura, implicación práctica',tip:'Si citás algo externo, poné siempre tu opinión: sin tu voz es solo un reposteo.'},
+   vis:{tipo:'Captura con anotación o infografía propia',comp:'Captura del titular que referenciás, con tu nombre o logo en el ángulo y los colores de tu identidad.',tools:'Canva, captura de pantalla más Snapseed'},
+   pub:{fn:'Post con imagen; si el análisis es largo, considerá un artículo de LinkedIn',etq:'Podés etiquetar a la publicación o la persona que referenciás',momento:'Lunes o martes, al inicio de la semana',cierre:'Pregunta de perspectiva: ¿están viendo lo mismo en sus organizaciones?'}},
+  {fmt:{tipo:'Historia más aprendizaje',long:'4 párrafos: el error, el impacto, el ajuste, lo que cambió',tip:'Evitá el cierre inspiracional: es más honesto terminar con lo que concretamente cambiaste.'},
+   vis:{tipo:'Foto tuya o imagen minimalista con texto',comp:'Si usás imagen con texto: fondo oscuro o neutro, tipografía limpia, máximo diez palabras.',tools:'Canva, tu celular'},
+   pub:{fn:'Post de texto con imagen; evitá la encuesta para este tipo',etq:'No etiquetes a nadie en posts de errores',momento:'Jueves o viernes',cierre:'Sin pregunta de engagement forzada: un cierre directo funciona mejor'}},
+  {fmt:{tipo:'Pregunta más contexto',long:'2 a 3 párrafos cortos',tip:'Planteá la pregunta con contexto concreto: una pregunta específica genera respuestas específicas.'},
+   vis:{tipo:'Imagen que represente la duda o el contexto',comp:'Una foto tuya, una pizarra con la pregunta o una foto de contexto; evitá ilustraciones genéricas.',tools:'Tu celular, Canva'},
+   pub:{fn:'Post con imagen, o encuesta si la pregunta admite opciones claras',etq:'Etiquetá a una o dos personas con experiencia en el tema, no más',momento:'Martes o miércoles a la tarde',cierre:'La pregunta es el cierre: no agregues nada después'}}
+];
+
+/* ── Estado (todo se guarda en localStorage) ─────────────── */
+function fresh(){return{nav:'intro',name:'',gender:'F',goal:'',f:{},voz:{qi:0,ans:{},ord:null,res:''},sample:'',gen:{tipo:'aprendizaje',campos:{},done:false,edited:''}};}
+var state=fresh();
+function save(){try{localStorage.setItem(LS,JSON.stringify(state));}catch(e){}}
+function load(){
+  try{
+    var raw=localStorage.getItem(LS);
+    if(raw){var p=JSON.parse(raw);if(p&&typeof p==='object'){var f=fresh();Object.keys(f).forEach(function(k){if(p[k]!==undefined)f[k]=p[k];});state=f;}return;}
+    /* migra el formato anterior si existía */
+    var g=function(k){return localStorage.getItem(k);};
+    var nm=g('tk_li2_name');
+    if(nm){
+      state.name=nm;
+      if(g('tk_li2_gender'))state.gender=g('tk_li2_gender');
+      var map={hab:'id_hab',prob:'id_prob',persp:'id_persp',ctx:'id_ctx',inicio:'st_inicio',giro:'st_giro',construido:'st_construido',hoy:'st_hoy'};
+      Object.keys(map).forEach(function(k){var v=g('tk_li2_f_'+map[k]);if(v)state.f[k]=v;});
+      var r=g('tk_li2_vozResult');if(r&&PERFILES[r])state.voz.res=r;
+    }
+  }catch(e){}
+}
+
+/* ── Utilidades ──────────────────────────────────────────── */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function showErr(id,msg){var e=$(id);e.textContent=msg;e.classList.add('show');}
+function hideErr(id){$(id).classList.remove('show');}
+function fv(k){return (state.f[k]||'').trim();}
+function goalOf(){for(var i=0;i<GOALS.length;i++)if(GOALS[i].id===state.goal)return GOALS[i];}
+function tipoOf(id){for(var i=0;i<TIPOS.length;i++)if(TIPOS[i].id===id)return TIPOS[i];return TIPOS[0];}
+function firstName(){return (state.name||'').trim().split(' ')[0];}
+
+/* ── Navegación ──────────────────────────────────────────── */
+var PAGES={intro:'pgIntro',base:'pgBase',story:'pgStory',voice:'pgVoice',kit:'pgKit'};
+var STEP={intro:0,base:1,story:2,voice:3,kit:4};
+function go(v){
+  ['errIntro','errBase','errStory','errVoice','errGen'].forEach(hideErr);
+  state.nav=v;
+  Object.keys(PAGES).forEach(function(k){$(PAGES[k]).classList.toggle('on',k===v);});
+  document.querySelector('.restart').classList.toggle('hidden',v==='intro');
+  var s=STEP[v];
+  if(!s){$('progBar').classList.add('hidden');$('progTxt').textContent='LinkedIn';}
+  else{$('progBar').classList.remove('hidden');$('progTxt').textContent='Paso '+s+' de 4';$('progFill').style.width=Math.round(s/4*100)+'%';}
+  if(v==='intro')renderIntro();
+  else if(v==='base')renderBase();
+  else if(v==='story')renderStory();
+  else if(v==='voice')renderVoice();
+  else renderKit();
+  save();window.scrollTo(0,0);
+}
+
+/* ── INTRO ───────────────────────────────────────────────── */
+function renderIntro(){
+  $('getGrid').innerHTML=GETS.map(function(g){return '<div class="get" style="--gc:'+g.c+'"><div class="get-t">'+esc(g.t)+'</div><div class="get-b">'+esc(g.b)+'</div></div>';}).join('');
+  $('crit').innerHTML=CRIT.map(function(c){return '<div class="crit-i"><span class="crit-n">'+c.n+'</span><div><div class="crit-t">'+esc(c.t)+'</div><div class="crit-q">'+esc(c.q)+'</div></div></div>';}).join('');
+  $('nameInput').value=state.name||'';
+  document.querySelectorAll('#genderSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-g')===state.gender);});
+}
+$('nameInput').addEventListener('input',function(){state.name=this.value;save();});
+$('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();start();}});
+function start(){
+  var n=$('nameInput').value.trim();
+  if(!n){showErr('errIntro','Escribí tu nombre para poder comenzar.');return;}
+  state.name=n;go('base');
+}
+
+/* ── PASO 1 · BASE ───────────────────────────────────────── */
+function renderBase(){
+  $('goals').innerHTML=GOALS.map(function(g){return '<button type="button" class="goal'+(state.goal===g.id?' on':'')+'" data-action="goal" data-id="'+g.id+'" aria-pressed="'+(state.goal===g.id)+'"><span class="goal-t">'+esc(g.t)+'</span><span class="goal-b">'+esc(g.b)+'</span></button>';}).join('');
+  $('baseFields').innerHTML=BASE.map(function(b){return '<div class="field"><p class="field-q">'+esc(b.q)+'</p><p class="field-h">'+esc(b.h)+'</p><textarea class="ta" data-f="'+b.id+'" maxlength="400" placeholder="'+esc(b.ph)+'">'+esc(state.f[b.id]||'')+'</textarea></div>';}).join('');
+}
+function baseNext(){
+  if(!state.goal){showErr('errBase','Elegí para qué usás LinkedIn hoy.');return;}
+  if(!fv('hab')||!fv('prob')){showErr('errBase','Completá al menos las dos primeras preguntas: qué sabés hacer y qué problema resolvés.');return;}
+  go('story');
+}
+
+/* ── PASO 2 · HISTORIA ───────────────────────────────────── */
+function renderStory(){
+  $('storyBox').innerHTML=STORY.map(function(s,i){return '<div class="sc" style="--sc:'+s.c+'"><div class="sc-h"><span class="sc-n">'+(i+1)+'</span><span class="sc-t">'+esc(s.t)+'</span></div><p class="sc-q">'+esc(s.q)+'</p><textarea class="ta" data-f="'+s.id+'" maxlength="500" placeholder="Escribí con tus palabras…">'+esc(state.f[s.id]||'')+'</textarea><p class="sc-tip">'+esc(s.tip)+'</p></div>';}).join('');
+}
+function storyNext(){
+  var n=STORY.filter(function(s){return fv(s.id);}).length;
+  if(n<2){showErr('errStory','Completá al menos dos de los cuatro momentos para poder seguir.');return;}
+  go('voice');
+}
+
+/* ── PASO 3 · VOZ ────────────────────────────────────────── */
+function ensureOrder(){
+  if(state.voz.ord&&state.voz.ord.length===VOZ_QS.length)return;
+  state.voz.ord=VOZ_QS.map(function(q){
+    var a=q.opts.map(function(_,i){return i;});
+    for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+    return a;
+  });
+}
+function renderVoice(){
+  ensureOrder();
+  var v=state.voz,box=$('voiceBox'),tot=VOZ_QS.length;
+  if(v.res){
+    var p=PERFILES[v.res];
+    box.innerHTML='<div class="vcard vres" style="--vc:'+p.color+'"><p class="vres-eye">Tu estilo natural es</p><p class="vres-t">'+esc(p.nombre)+'</p><p class="vres-d">'+esc(p.desc)+'</p><p class="lbl">Tus tres reglas</p><div class="rules">'+p.reglas.map(function(r,i){return '<div class="rule"><span class="rule-n">'+(i+1)+'</span><span class="rule-t">'+esc(r)+'</span></div>';}).join('')+'</div><button class="vagain" type="button" data-action="voz-again">Repetir el test</button></div>';
+  }else{
+    var q=VOZ_QS[v.qi],ord=v.ord[v.qi];
+    box.innerHTML='<div class="vcard"><div class="vbar"><i style="width:'+Math.round((v.qi+1)/tot*100)+'%"></i></div><p class="vqn">Pregunta '+(v.qi+1)+' de '+tot+'</p><p class="vq">'+esc(q.q)+'</p><div class="vopts">'+ord.map(function(oi){var sel=v.ans[v.qi]===oi;return '<button type="button" class="vopt'+(sel?' sel':'')+'" data-action="voz-pick" data-o="'+oi+'" aria-pressed="'+sel+'"><span class="vdot"></span><span>'+esc(q.opts[oi].t)+'</span></button>';}).join('')+'</div><div class="vnav"><button class="btn-ghost" type="button" data-action="voz-back"'+(v.qi===0?' disabled':'')+'>← Anterior</button><span></span></div></div>';
+  }
+  $('sampleIn').value=state.sample||'';
+  $('sampleCnt').textContent=(state.sample||'').length+' / 3000';
+}
+function vozPick(oi){
+  var v=state.voz;v.ans[v.qi]=oi;save();renderVoice();
+  setTimeout(function(){
+    if(state.nav!=='voice'||state.voz.res)return;
+    if(v.qi===VOZ_QS.length-1){vozResult();}
+    else{v.qi++;save();renderVoice();}
+  },220);
+}
+function vozResult(){
+  var sc={N:0,A:0,R:0};
+  VOZ_QS.forEach(function(q,i){var a=state.voz.ans[i];if(a!==undefined)sc[q.opts[a].k]++;});
+  state.voz.res=Object.keys(sc).reduce(function(a,b){return sc[a]>=sc[b]?a:b;});
+  save();renderVoice();
+}
+function voiceNext(){
+  if(!state.voz.res){showErr('errVoice','Terminá el test de cinco preguntas para ver tu estilo.');return;}
+  go('kit');
+}
+
+/* ── ADN y prompts ───────────────────────────────────────── */
+function genderTxt(){return state.gender==='M'?'masculina':state.gender==='N'?'neutra (evitá marcas de género cuando sea posible)':'femenina';}
+function buildADN(){
+  var L=[],g=goalOf(),p=state.voz.res?PERFILES[state.voz.res]:null;
+  L.push('=== ADN DE VOZ PROFESIONAL ===','');
+  L.push('PERFIL');
+  if(state.name)L.push('- Nombre: '+state.name.trim());
+  L.push('- Concordancia de género al escribir sobre mí: '+genderTxt());
+  if(g)L.push('- Qué busco en LinkedIn: '+g.txt);
+  L.push('');
+  var idn=[['Lo que mejor sé hacer','hab'],['Problema que resuelvo mejor que la mayoría','prob'],['Lo que veo en mi industria y casi no se nombra','persp'],['Contexto en el que trabajo o quiero trabajar','ctx']].filter(function(r){return fv(r[1]);});
+  if(idn.length){L.push('IDENTIDAD');idn.forEach(function(r){L.push('- '+r[0]+': '+fv(r[1]));});L.push('');}
+  var his=[['Punto de partida','inicio'],['Giro que cambió mi rumbo','giro'],['Lo que construí','construido'],['Dónde estoy hoy','hoy']].filter(function(r){return fv(r[1]);});
+  if(his.length){L.push('HISTORIA');his.forEach(function(r){L.push('- '+r[0]+': '+fv(r[1]));});L.push('');}
+  if(p){
+    L.push('VOZ');
+    L.push('- Estilo natural: '+p.nombre+'. '+p.desc);
+    L.push('- Reglas que quiero que se respeten:');
+    p.reglas.forEach(function(r){L.push('  * '+r);});
+    L.push('');
+  }
+  if((state.sample||'').trim()){L.push('MUESTRA DE CÓMO ESCRIBO (imitá el ritmo, el vocabulario y el tono, no el contenido)','"""',state.sample.trim(),'"""','');}
+  L.push('CÓMO QUIERO QUE ESCRIBAS');
+  L.push('- Primera persona, tono de conversación real, frases cortas o medianas.');
+  L.push('- Sin frases hechas, sin motivacionales genéricas y sin emojis de relleno.');
+  L.push('- No inventes datos, logros ni anécdotas: usá solo lo que está en este perfil o lo que te cuente.');
+  L.push('- Si te falta información para hacerlo bien, preguntame antes de escribir.');
+  L.push('','=== FIN DEL ADN ===');
+  return L.join('\n');
+}
+function goalLine(){var g=goalOf();return g?g.txt:'';}
+function promptTitular(){
+  return 'TAREA\nEscribí 3 opciones de titular para mi perfil de LinkedIn, de hasta 220 caracteres cada una. Cada una tiene que decir qué hago y para quién, o qué problema resuelvo, con palabras que alguien usaría para buscarme. Evitá “apasionado por”, “líder en” y frases parecidas. Mi objetivo: '+goalLine()+'.\nDespués, explicá en una línea qué enfatiza cada opción.';
+}
+function promptAcerca(){
+  return 'TAREA\nEscribí la sección “Acerca de” de mi perfil de LinkedIn en primera persona: 3 o 4 párrafos cortos, máximo 1.500 caracteres. Empezá con una situación o una idea concreta, no con mi cargo. Conectá de dónde vengo con hacia dónde voy usando mi historia, y cerrá con una línea sobre qué tipo de conversaciones u oportunidades busco. Sin listas, sin emojis, sin clichés. Mi objetivo: '+goalLine()+'.';
+}
+function postStructure(){
+  var t=tipoOf(state.gen.tipo),out='';
+  t.campos.forEach(function(c){var v=(state.gen.campos[c.id]||'').trim();if(v)out+='['+c.tag+']\n'+v+'\n\n';});
+  out+='---\nTAREA\nRedactá un post de LinkedIn en primera persona con esta estructura. Que suene natural y conversacional, sin emojis de relleno, sin frases motivacionales genéricas y sin viñetas si no hacen falta.'+(t.extra?' '+t.extra:'')+' Que quien lo lea sienta que lo escribió una persona real.';
+  return out;
+}
+
+/* ── PASO 4 · KIT ────────────────────────────────────────── */
+function renderKit(){
+  var fn=firstName();
+  $('kitTitle').textContent=fn?'El kit de '+fn:'Tu kit para escribir con tu voz';
+  $('adnPre').textContent=buildADN();
+  $('pTitular').value=promptTitular();
+  $('pAcerca').value=promptAcerca();
+  var p=state.voz.res?PERFILES[state.voz.res]:PERFILES.N;
+  $('checkCard').style.setProperty('--vc',p.color);
+  $('checkCard').innerHTML='<p class="lbl">Para tu '+esc(p.nombre.toLowerCase())+'</p><div class="cl">'+p.check.map(function(c){return '<div class="cl-i"><i></i><span>'+esc(c)+'</span></div>';}).join('')+'</div>';
+  renderGen();
+}
+function renderGen(){
+  var t=tipoOf(state.gen.tipo);
+  $('types').innerHTML=TIPOS.map(function(x){return '<button type="button" class="type'+(x.id===t.id?' on':'')+'" data-action="tipo" data-id="'+x.id+'" aria-pressed="'+(x.id===t.id)+'">'+esc(x.t)+'</button>';}).join('');
+  $('typeDesc').textContent=t.d;
+  $('genFields').innerHTML=t.campos.map(function(c){return '<div class="field" style="margin-bottom:16px"><p class="field-q" style="font-size:14px">'+esc(c.l)+(c.req?'':' <span style="font-weight:500;color:var(--muted)">(opcional)</span>')+'</p><textarea class="ta" data-gf="'+c.id+'" maxlength="500" style="min-height:70px" placeholder="'+esc(c.ph)+'">'+esc(state.gen.campos[c.id]||'')+'</textarea></div>';}).join('');
+  if(state.gen.done){showGenOut();}else{$('genOut').classList.add('hidden');}
+}
+function showGenOut(){
+  var t=tipoOf(state.gen.tipo),b=BRIEFS[t.b];
+  $('genOut').classList.remove('hidden');
+  $('pPost').value=state.gen.edited||postStructure();
+  $('briefs').innerHTML=
+    '<div class="brief"><p class="brief-t">Formato</p><p class="brief-r"><b>'+esc(b.fmt.tipo)+'</b></p><p class="brief-r">'+esc(b.fmt.long)+'</p><p class="brief-r">'+esc(b.fmt.tip)+'</p></div>'+
+    '<div class="brief"><p class="brief-t">Imagen</p><p class="brief-r"><b>'+esc(b.vis.tipo)+'</b></p><p class="brief-r">'+esc(b.vis.comp)+'</p><p class="brief-r">Herramientas: '+esc(b.vis.tools)+'</p></div>'+
+    '<div class="brief"><p class="brief-t">Publicación</p><p class="brief-r"><b>'+esc(b.pub.fn)+'</b></p><p class="brief-r">Etiquetas: '+esc(b.pub.etq)+'</p><p class="brief-r">Cuándo: '+esc(b.pub.momento)+'</p><p class="brief-r">Cierre: '+esc(b.pub.cierre)+'</p></div>';
+}
+function genBuild(){
+  var t=tipoOf(state.gen.tipo);
+  var missing=t.campos.filter(function(c){return c.req&&!(state.gen.campos[c.id]||'').trim();});
+  if(missing.length){showErr('errGen','Completá lo mínimo para poder armar la estructura: '+missing.map(function(c){return '“'+c.l+'”';}).join(' y ')+'.');return;}
+  hideErr('errGen');
+  state.gen.done=true;state.gen.edited='';save();showGenOut();
+  $('genOut').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ── Copiar / descargar (con respaldo para iframes) ──────── */
+function copyText(txt,cb){
+  function fallback(){
+    try{
+      var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');document.body.removeChild(ta);cb(ok);
+    }catch(e){cb(false);}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){cb(true);},fallback);}
+  else fallback();
+}
+var copyLabels={adn:'Copiar mi ADN',titular:'Copiar con mi ADN',acerca:'Copiar con mi ADN',post:'Copiar estructura'};
+function doCopy(what,btn){
+  var txt;
+  if(what==='adn')txt=buildADN();
+  else if(what==='titular')txt=buildADN()+'\n\n'+$('pTitular').value;
+  else if(what==='acerca')txt=buildADN()+'\n\n'+$('pAcerca').value;
+  else{var body=$('pPost').value;txt=$('inclAdn').checked?buildADN()+'\n\n'+body:body;}
+  copyText(txt,function(ok){
+    btn.textContent=ok?'Copiado ✓':'No se pudo copiar: seleccioná y copiá a mano';
+    btn.classList.toggle('done',ok);
+    setTimeout(function(){btn.textContent=copyLabels[what];btn.classList.remove('done');},2200);
+  });
+}
+function download(){
+  try{
+    var blob=new Blob([buildADN()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='adn-de-voz.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href);},500);
+  }catch(e){}
+}
+
+/* ── Eventos (delegados) ─────────────────────────────────── */
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-action]');
+  if(!el)return;
+  var a=el.getAttribute('data-action');
+  if(a==='start')start();
+  else if(a==='gender'){state.gender=el.getAttribute('data-g');save();renderIntro();}
+  else if(a==='go')go(el.getAttribute('data-v'));
+  else if(a==='goal'){state.goal=el.getAttribute('data-id');save();renderBase();}
+  else if(a==='base-next')baseNext();
+  else if(a==='story-next')storyNext();
+  else if(a==='voz-pick')vozPick(parseInt(el.getAttribute('data-o'),10));
+  else if(a==='voz-back'){if(state.voz.qi>0){state.voz.qi--;save();renderVoice();}}
+  else if(a==='voz-again'){state.voz={qi:0,ans:{},ord:null,res:''};save();renderVoice();}
+  else if(a==='voice-next')voiceNext();
+  else if(a==='tipo'){state.gen.tipo=el.getAttribute('data-id');state.gen.done=false;state.gen.edited='';save();renderGen();}
+  else if(a==='gen')genBuild();
+  else if(a==='gen-clear'){state.gen.campos={};state.gen.done=false;state.gen.edited='';save();renderGen();}
+  else if(a==='copy')doCopy(el.getAttribute('data-what'),el);
+  else if(a==='download')download();
+  else if(a==='restart'){$('restartConfirm').classList.remove('hidden');el.classList.add('hidden');}
+  else if(a==='restart-no'){$('restartConfirm').classList.add('hidden');$('restartBtn').classList.remove('hidden');}
+  else if(a==='restart-yes'){
+    try{localStorage.removeItem(LS);}catch(x){}
+    state=fresh();
+    $('restartConfirm').classList.add('hidden');$('restartBtn').classList.remove('hidden');
+    go('intro');
+  }
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.getAttribute&&t.getAttribute('data-f')){state.f[t.getAttribute('data-f')]=t.value;save();}
+  else if(t.getAttribute&&t.getAttribute('data-gf')){state.gen.campos[t.getAttribute('data-gf')]=t.value;state.gen.edited='';if(state.gen.done)$('pPost').value=postStructure();save();}
+  else if(t.id==='sampleIn'){state.sample=t.value;$('sampleCnt').textContent=t.value.length+' / 3000';save();}
+  else if(t.id==='pPost'){state.gen.edited=t.value;save();}
+});
+
+/* ── Arranque: retoma donde quedó la persona ─────────────── */
+load();
+(function(){
+  var v=state.nav;
+  if(!state.name.trim()||!PAGES[v]){go('intro');return;}
+  if(v==='kit'&&!state.voz.res)v='voice';
+  go(v);
+})();
+})();
+</script>
+</body>
+</html>
